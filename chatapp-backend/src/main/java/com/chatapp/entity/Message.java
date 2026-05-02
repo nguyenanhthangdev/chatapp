@@ -23,6 +23,8 @@ public class Message {
 
     private String content;
 
+    private String username;
+
     @Enumerated(EnumType.STRING)
     private MessageType type;
 

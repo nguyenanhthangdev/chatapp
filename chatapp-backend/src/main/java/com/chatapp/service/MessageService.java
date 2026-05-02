@@ -3,7 +3,9 @@ package com.chatapp.service;
 import com.chatapp.entity.Message;
 import com.chatapp.entity.MessageStatus;
 import com.chatapp.entity.MessageType;
+import com.chatapp.entity.User;
 import com.chatapp.repository.MessageRepository;
+import com.chatapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +16,13 @@ import java.util.UUID;
 public class MessageService {
 
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     public Message sendMessage(UUID chatRoomId, UUID senderId, String content) {
+
+        // 👇 lấy user từ DB
+        User user = userRepository.findById(senderId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Message msg = new Message();
         msg.setChatRoomId(chatRoomId);
@@ -23,6 +30,9 @@ public class MessageService {
         msg.setContent(content);
         msg.setType(MessageType.TEXT);
         msg.setStatus(MessageStatus.SENT);
+
+        // 👇 set username từ DB
+        msg.setUsername(user.getUsername());
 
         return messageRepository.save(msg);
     }
