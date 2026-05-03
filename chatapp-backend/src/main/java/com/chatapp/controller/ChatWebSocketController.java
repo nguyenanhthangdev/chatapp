@@ -1,8 +1,10 @@
 package com.chatapp.controller;
 
 import com.chatapp.dto.ChatMessageDTO;
+import com.chatapp.entity.Message;
 import com.chatapp.entity.User;
 import com.chatapp.repository.UserRepository;
+import com.chatapp.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -12,21 +14,22 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class ChatWebSocketController {
 
-    private final UserRepository userRepository; // 👈 thêm
+    private final MessageService messageService;
 
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
     public ChatMessageDTO send(ChatMessageDTO message) {
 
-        System.out.println("📥 RECEIVED: " + message);
+        // 🔥 LƯU DB
+        Message saved = messageService.saveFromSocket(message);
 
-        // 🔥 LẤY USER TỪ DB
-        User user = userRepository.findById(message.getSenderId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        // 🔥 trả lại DTO (có senderName, time,...)
+        ChatMessageDTO response = new ChatMessageDTO();
+        response.setChatRoomId(saved.getChatRoomId());
+        response.setSenderId(saved.getSenderId());
+        response.setUsername(saved.getUsername());
+        response.setContent(saved.getContent());
 
-        // 🔥 SET TÊN TỪ DB
-        message.setUsername(user.getUsername());
-
-        return message;
+        return response;
     }
 }

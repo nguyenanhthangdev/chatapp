@@ -4,10 +4,10 @@ import com.chatapp.dto.SendMessageRequest;
 import com.chatapp.entity.Message;
 import com.chatapp.service.MessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -23,5 +23,10 @@ public class MessageController {
                 request.getSenderId(),
                 request.getContent()
         );
+    }
+
+    @GetMapping("/{roomId}")
+    public List<Message> getMessages(@PathVariable UUID roomId) {
+        return messageService.getMessages(roomId);
     }
 }

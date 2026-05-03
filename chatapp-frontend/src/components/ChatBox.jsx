@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { connectSocket, sendMessage } from "../services/socket";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import {  useRef } from "react";
+import axios from "axios";
 
 export default function ChatBox({ room }) {
   const [messages, setMessages] = useState([]);
   const connectedRef = useRef(false);
 
+  // 🔥 CONNECT SOCKET (chỉ 1 lần)
   useEffect(() => {
     if (connectedRef.current) return;
 
@@ -18,13 +19,23 @@ export default function ChatBox({ room }) {
     });
   }, []);
 
+  // 🔥 LOAD LỊCH SỬ
+  useEffect(() => {
+    if (!room) return;
+
+    axios
+      .get(`http://localhost:8080/api/messages/${room.id}`)
+      .then((res) => setMessages(res.data))
+      .catch((err) => console.error("LOAD HISTORY ERROR", err));
+  }, [room]);
+
   const handleSend = (text) => {
     const msg = {
       chatRoomId: room.id,
       senderId: "9f31bc95-cbb3-4815-99b7-3ef78f547cda",
       content: text,
       type: "TEXT",
-      username: name,
+      username: "test1", // 🔥 fix tạm
     };
 
     console.log("📤 MESSAGE:", msg);
