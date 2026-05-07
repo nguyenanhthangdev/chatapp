@@ -25,4 +25,7 @@ public class ChatRoom {
     private Boolean isGroup = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private UUID user1;
+    private UUID user2;
 }

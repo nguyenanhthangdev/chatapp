@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { connectSocket, sendMessage } from "../services/socket";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import axios from "axios";
+// import axios from "axios";
 
 export default function ChatBox({ room }) {
   const [messages, setMessages] = useState([]);
@@ -23,19 +23,20 @@ export default function ChatBox({ room }) {
   useEffect(() => {
     if (!room) return;
 
-    axios
-      .get(`http://localhost:8080/api/messages/${room.id}`)
-      .then((res) => setMessages(res.data))
-      .catch((err) => console.error("LOAD HISTORY ERROR", err));
+    fetch(`http://localhost:8080/api/messages/${room.id}`)
+      .then((res) => res.json())
+      .then((data) => setMessages(data));
   }, [room]);
 
   const handleSend = (text) => {
+    const currentUserId = localStorage.getItem("userId"); // 👈 thêm dòng này
+
     const msg = {
       chatRoomId: room.id,
-      senderId: "9f31bc95-cbb3-4815-99b7-3ef78f547cda",
+      senderId: currentUserId, // 👈 sửa dòng này
       content: text,
       type: "TEXT",
-      username: "test1", // 🔥 fix tạm
+      username: localStorage.getItem("username"), // nếu có
     };
 
     console.log("📤 MESSAGE:", msg);
@@ -46,8 +47,20 @@ export default function ChatBox({ room }) {
   if (!room) return <div>Chọn 1 cuộc trò chuyện</div>;
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <MessageList messages={messages} />
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh", // 👈 QUAN TRỌNG
+      }}
+    >
+      {/* MESSAGE LIST */}
+      <div style={{ flex: 1, overflowY: "auto" }}>
+        <MessageList messages={messages} />
+      </div>
+
+      {/* INPUT */}
       <MessageInput onSend={handleSend} />
     </div>
   );

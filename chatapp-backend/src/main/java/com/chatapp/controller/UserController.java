@@ -2,6 +2,7 @@ package com.chatapp.controller;
 
 import com.chatapp.dto.CreateUserRequest;
 import com.chatapp.dto.UserResponse;
+import com.chatapp.entity.User;
 import com.chatapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,5 +24,10 @@ public class UserController {
     @GetMapping
     public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/search")
+    public User search(@RequestParam String email) {
+        return userService.findByEmail(email);
     }
 }

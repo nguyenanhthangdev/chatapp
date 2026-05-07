@@ -35,15 +35,19 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow();
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new RuntimeException("Sai mật khẩu");
         }
 
         String token = jwtService.generateToken(user.getUsername());
 
-        return AuthResponse.builder().token(token).build();
+        return AuthResponse.builder()
+                .token(token)
+                .userId(user.getId())         // 👈 THÊM
+                .username(user.getUsername()) // 👈 THÊM
+                .build();
     }
 }

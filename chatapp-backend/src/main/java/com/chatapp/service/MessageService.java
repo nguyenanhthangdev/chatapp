@@ -56,4 +56,17 @@ public class MessageService {
     public List<Message> getMessages(UUID roomId) {
         return messageRepository.findByChatRoomIdOrderByCreatedAtAsc(roomId);
     }
+
+    public void saveMessage(ChatMessageDTO dto) {
+        Message msg = new Message();
+
+        msg.setChatRoomId(dto.getChatRoomId());
+        msg.setSenderId(dto.getSenderId());
+        msg.setContent(dto.getContent());
+        msg.setType(MessageType.TEXT);
+        msg.setStatus(MessageStatus.SENT);
+        msg.setUsername(dto.getUsername());
+
+        messageRepository.save(msg);
+    }
 }

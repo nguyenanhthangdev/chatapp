@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,16 +22,11 @@ public class ChatWebSocketController {
     @SendTo("/topic/messages")
     public ChatMessageDTO send(ChatMessageDTO message) {
 
+        System.out.println("📥 RECEIVED: " + message);
+
         // 🔥 LƯU DB
-        Message saved = messageService.saveFromSocket(message);
+        messageService.saveMessage(message);
 
-        // 🔥 trả lại DTO (có senderName, time,...)
-        ChatMessageDTO response = new ChatMessageDTO();
-        response.setChatRoomId(saved.getChatRoomId());
-        response.setSenderId(saved.getSenderId());
-        response.setUsername(saved.getUsername());
-        response.setContent(saved.getContent());
-
-        return response;
+        return message;
     }
 }

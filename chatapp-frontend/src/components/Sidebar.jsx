@@ -1,27 +1,32 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
+import { subscribeNotification } from "../services/socket";
 
 export default function Sidebar({ onSelectRoom }) {
   const [rooms, setRooms] = useState([]);
 
+  const userId = localStorage.getItem("userId");
+
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/chats");
-
-        console.log("ROOMS API RESPONSE:", res.data);
-
+        const res = await api.get(`/api/chats/my/${userId}`);
         setRooms(res.data);
       } catch (err) {
         console.error("LOAD ROOMS ERROR:", err);
       }
     };
 
-    fetchRooms();
+    if (userId) fetchRooms();
+  }, [userId]);
+
+  useEffect(() => {
+    subscribeNotification(userId, (data) => {
+      if (data.type === "NEW_CHAT_ROOM") {
+        fetchRooms();
+      }
+    });
   }, []);
-
-
-  console.log("SIDEBAR RENDERED");
 
   return (
     <div
@@ -41,7 +46,7 @@ export default function Sidebar({ onSelectRoom }) {
             borderRadius: "5px",
           }}
         >
-          {room.name || "Unnamed Room"}
+          {room.otherUsername}
         </div>
       ))}
     </div>
